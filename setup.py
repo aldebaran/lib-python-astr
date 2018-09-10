@@ -5,11 +5,23 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from distutils.core import setup
+import setuptools
 
-setup(name='libastr',
-      version='1.0.0',
-      description='ASTR Python library',
-      author='Softbank Robotics Europe',
-      packages=['libastr'],
-     )
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
+setuptools.setup(
+    name='libastr',
+    version='1.0.1',
+    description='A Python library to interact with ASTR servers.',
+    long_description=long_description,
+    author='Softbank Robotics Europe',
+    packages=['libastr'],
+    url="https://github.com/aldebaran/lib-python-astr",
+    license="MPL-2.0",
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+        "Operating System :: OS Independent",
+    ],
+)
