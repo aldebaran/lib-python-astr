@@ -42,3 +42,9 @@ class ArchiveError(Exception):
 class PathError(Exception):
     """PathError Exception."""
     pass
+
+
+class DownloadError(Exception):
+    """Error raised when download encountered an issue."""
+    pass
+

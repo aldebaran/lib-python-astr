@@ -9,6 +9,9 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import json
 import os.path
+import zipfile
+import shutil
+
 from libastr.client import AstrClient
 from .logger import get_logger
 from .exceptions import *
@@ -416,28 +419,41 @@ class Archive(object):
         return self._astrclient.upload(uri="upload/replace-zip", paths=file_paths,
                                        zip_name=self.id_)
 
-    def download(self, local_path):
+    def download(self, local_path, extract=False):
         """Download the archive to a local directory.
 
         Args:
             local_path: local directory where the zip will be downloaded
                   (e.g. "/home/john.doe/Desktop")
+            extract: (bool) (optional) If True, the downloaded archive will immediately
+              be decompressed and extracted. Contents of the archive will be located in
+              a subdirectory of the given local path, named with the unique ID
+              of the archive. If this subdirectory already exists, it will be overwritten.
 
-        Returns:
-            (str) confirmation
-
+        Raises:
+             PathError: if the given local path is not valid.
+             Exception: if an issue occured during download.
+             Other exceptions: same than AstrClient.download()
         """
         if not os.path.isdir(local_path):
             raise PathError("{} is not a valid directory".format(local_path))
-        if not local_path.endswith('/'):
-            local_path += '/'
-        local_path += self.id_ + '.zip'
-        res = self._astrclient.download(uri="download/id/" + self.id_, path=local_path)
-        if res is True:
-            return "Downloaded: {}".format(local_path)
-        else:
-            return "Error while downloading {}".format(self.id_)
-
+        path_to_zip = os.path.join(local_path, self.id_ + '.zip')
+        self._astrclient.download(uri="download/id/" + self.id_, path=path_to_zip)
+        
+        if extract:
+            archive_folder = os.path.join(local_path, self.id_)
+            # If the folder to extract files already exists, remove it and its content.
+            if os.path.isdir(archive_folder):
+                shutil.rmtree(archive_folder)
+            # Create a new folder for this archive
+            os.mkdir(archive_folder)
+            # Extract the zip file
+            zip_ref = zipfile.ZipFile(path_to_zip, 'r')
+            zip_ref.extractall(archive_folder)
+            zip_ref.close()
+            # Remove the useless .zip file
+            os.remove(path_to_zip)
+        
 
 # - [ Archive Category ] ----------------------------------------------------
 

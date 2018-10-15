@@ -169,13 +169,17 @@ class AstrClient(object):
             uri (unicode): post request uri (e.g. download/id/5b29162874f5a43fc26f1f34)
             path (str): location where the file will be saved
 
-        Returns:
-            (Boolean) True if success
+        Raises:
+            AuthenticationFailure: If an error occured during authentication.
+            ResourceNotFound: If the wanted archive cannot be found.
+            
         """
         uri = urllib.parse.quote(uri)
         url = "{}{}".format(self.url, uri)
         self._logger.debug("Download: {}".format(url))
         response = requests.get(url)
+
+        # Check the response
         try:
             response.raise_for_status()
         except HTTPError:
@@ -188,9 +192,12 @@ class AstrClient(object):
             if response.status_code == "404":
                 raise ResourceNotFound(response)
             response.raise_for_status()
+        if not response.ok:
+            raise DownloadError
+
+        # Write the content of the archive into a .zip file
         with open(path, "wb") as f:
             f.write(response.content)
-        return response.ok
 
     def upload(self, uri, paths, zip_name):
         """Upload file(s) to ASTR.
