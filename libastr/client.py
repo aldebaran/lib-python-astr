@@ -172,7 +172,6 @@ class AstrClient(object):
         Raises:
             AuthenticationFailure: If an error occured during authentication.
             ResourceNotFound: If the wanted archive cannot be found.
-            
         """
         uri = urllib.parse.quote(uri)
         url = "{}{}".format(self.url, uri)
@@ -209,6 +208,9 @@ class AstrClient(object):
 
         Returns:
             (str) uploaded files
+
+        Raises:
+            AuthenticationFailure: If authentication failed.
         """
         uri = urllib.parse.quote(uri)
         url = "{}{}".format(self.url, uri)

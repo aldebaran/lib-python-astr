@@ -314,11 +314,10 @@ class Archive(object):
     def delete(self):
         """Delete this archive from ASTR.
 
-        Returns:
-            (dict) confirmation from API
-
+        Raises:
+            Same than AstrClient.send_delete()
         """
-        return self._astrclient.send_delete("archives/id/" + self.id_)
+        self._astrclient.send_delete("archives/id/" + self.id_)
 
     def update(self, date=None, comments=None, descriptors=None):
         """Update info about this archive on ASTR.
@@ -330,9 +329,8 @@ class Archive(object):
                          (e.g. {"my_desc": "MY VALUE", "my_second_desc": "VAL"})
                          only the values of existing descriptors can be modified
 
-        Returns:
-            (dict) confirmation
-
+        Raises:
+            Same than AstrClient.send_post()
         """
         body_request = {}
         if date is not None:
@@ -344,7 +342,8 @@ class Archive(object):
             for key, value in descriptors.items():
                 descriptors_list.append({"name": key, "value": value})
             body_request["descriptors"] = descriptors_list
-        return self._astrclient.send_post("archives/id/" + self.id_, params=body_request)
+        self._astrclient.send_post("archives/id/" + self.id_,
+                                   params=body_request)
 
     def upload(self, file_paths):
         """Upload this archive to ASTR.
@@ -354,9 +353,11 @@ class Archive(object):
                    (e.g. ["/home/john.doe/Desktop/file_1.txt",
                           "/home/john.doe/Desktop/file_2.png"])
 
-        Returns:
-            (str) API confirmation
-
+        Raises:
+            PathError: if the given file paths are not valid.
+            ArchiveError: if an error occured while adding the new archive
+              to the ASTR database.
+            Other exceptions: same than AstrClient.upload()
         """
         filenames = []
         if len(file_paths) == 0:
@@ -381,11 +382,10 @@ class Archive(object):
             raise ArchiveError(res)
         else:
             archive_id = res['archive']['_id']
-            upload_result = self._astrclient.upload(uri="upload",
-                                                    paths=file_paths,
-                                                    zip_name=archive_id)
+            self._astrclient.upload(uri="upload",
+                                    paths=file_paths,
+                                    zip_name=archive_id)
             self.id_ = archive_id
-            return upload_result
 
     def replace_zip(self, file_paths):
         """Replace the zip file of this archive with a new one.
@@ -395,9 +395,9 @@ class Archive(object):
                (e.g. ["/home/john.doe/Desktop/file_1.txt",
                       "/home/john.doe/Desktop/file_2.png"])
 
-        Returns:
-            (str) confirmation
-
+        Raises:
+            PathError: if given file paths are not valid.
+            Other exceptions: Same than AstrClient.upload()
         """
         filenames = []
         if len(file_paths) == 0:
@@ -414,10 +414,13 @@ class Archive(object):
             else:
                 filenames.append(os.path.basename(path))
         # update archive (last modification date)
-        self._astrclient.send_post("archives/id/" + self.id_, params={"newArchive": "true"})
+        self._astrclient.send_post("archives/id/" + self.id_,
+                                   params={"newArchive": "true"})
         # upload new files
-        return self._astrclient.upload(uri="upload/replace-zip", paths=file_paths,
-                                       zip_name=self.id_)
+        self._astrclient.upload(uri="upload/replace-zip",
+                                paths=file_paths,
+                                zip_name=self.id_)
+
 
     def download(self, local_path, extract=False):
         """Download the archive to a local directory.
