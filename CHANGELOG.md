@@ -30,6 +30,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Known Issues
 - None
 
+## [1.1.0] - 2018-10-16
+
+### Enhanced
+- Improve exception handling and avoid return mechanisms
+
+### Added
+- extract zip functionality to Archive.download()
+
+## [1.0.1] - 2018-09-10
+
+Improve setup file and add gitignore
+
 ## [1.0.0] - 2018-09-06
 
 *First official release.*

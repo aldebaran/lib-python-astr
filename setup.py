@@ -12,7 +12,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='libastr',
-    version='1.0.1',
+    version='1.1.0',
     description='A Python library to interact with ASTR servers.',
     long_description=long_description,
     author='Softbank Robotics Europe',
